@@ -1,144 +1,400 @@
 import streamlit as st
-import google.generativeai as genai
-from pypdf import PdfReader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
-import faiss
-import numpy as np
+import backend as backend
 
 # --- PAGE CONFIG ---
-st.set_page_config(page_title="AI Doc Search", layout="wide")
-st.title("RAG based doc search ")
+st.set_page_config(
+    page_title="AI Document Search",
+    page_icon="🔍",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# --- LOAD SECRETS ---
-try:
-    api_key = st.secrets["GOOGLE_API_KEY"]
-except KeyError:
-    st.error("API Key not found! Please check .streamlit/secrets.toml")
-    st.stop()
+# --- DARK THEME INSPIRED BY CLAUDE/CHATGPT ---
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    /* Dark background */
+    .stApp {
+        background-color: #212121;
+    }
+    
+    .main .block-container {
+        padding: 2rem 2rem 2rem 2rem;
+        max-width: 850px;
+    }
+    
+    /* Hide streamlit elements */
+    #MainMenu, footer, header {visibility: hidden;}
+    
+    /* Headers */
+    h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #ececec;
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.02em;
+    }
+    
+    /* Sidebar - dark */
+    [data-testid="stSidebar"] {
+        background-color: #171717;
+        border-right: 1px solid #2d2d2d;
+        padding-top: 1.5rem;
+    }
+    
+    [data-testid="stSidebar"] > div:first-child {
+        padding: 0 1.25rem;
+    }
+    
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #a0a0a0;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 1rem;
+    }
+    
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] label {
+        color: #b0b0b0;
+        font-size: 0.875rem;
+    }
+    
+    /* File uploader */
+    [data-testid="stFileUploader"] {
+        border: 1.5px dashed #404040;
+        border-radius: 10px;
+        padding: 1.25rem;
+        background: #1a1a1a;
+        transition: all 0.2s;
+    }
+    
+    [data-testid="stFileUploader"]:hover {
+        border-color: #505050;
+        background: #1f1f1f;
+    }
+    
+    [data-testid="stFileUploader"] label {
+        color: #d0d0d0;
+        font-weight: 500;
+    }
+    
+    /* Chat messages */
+    .stChatMessage {
+        background-color: transparent;
+        padding: 1.75rem 0;
+        border-bottom: 1px solid #2d2d2d;
+    }
+    
+    .stChatMessage:last-child {
+        border-bottom: none;
+    }
+    
+    /* User message background */
+    .stChatMessage[data-testid*="user"] {
+        background-color: transparent;
+    }
+    
+    /* Assistant message slight highlight */
+    .stChatMessage[data-testid*="assistant"] {
+        background-color: #1a1a1a;
+    }
+    
+    /* Avatar styling */
+    [data-testid="chatAvatarIcon-user"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    [data-testid="chatAvatarIcon-assistant"] {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    /* Message text */
+    [data-testid="stChatMessageContent"] {
+        color: #ececec;
+        font-size: 0.95rem;
+        line-height: 1.65;
+    }
+    
+    [data-testid="stChatMessageContent"] p {
+        margin-bottom: 0.875rem;
+        color: #ececec;
+    }
+    
+    [data-testid="stChatMessageContent"] strong {
+        color: #ffffff;
+    }
+    
+    /* Chat input */
+    .stChatInputContainer {
+        border-top: 1px solid #2d2d2d;
+        padding-top: 1.25rem;
+        background: #212121;
+    }
+    
+    .stChatInputContainer textarea {
+        background-color: #2d2d2d;
+        border: 1px solid #404040;
+        border-radius: 12px;
+        color: #ececec;
+        font-size: 0.95rem;
+        padding: 0.875rem 1rem;
+    }
+    
+    .stChatInputContainer textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 1px #667eea;
+        outline: none;
+        background-color: #333333;
+    }
+    
+    .stChatInputContainer textarea::placeholder {
+        color: #808080;
+    }
+    
+    /* Buttons */
+    .stButton > button {
+        background-color: #2d2d2d;
+        color: #ececec;
+        border: 1px solid #404040;
+        border-radius: 8px;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .stButton > button:hover {
+        background-color: #3a3a3a;
+        border-color: #505050;
+    }
+    
+    /* Alert boxes */
+    .stAlert {
+        background-color: #1a1a1a;
+        border: 1px solid #2d2d2d;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: #d0d0d0;
+    }
+    
+    div[data-baseweb="notification"] {
+        background-color: #1a3a1a !important;
+        border-left: 3px solid #4caf50;
+    }
+    
+    div[data-baseweb="notification"] > div {
+        color: #a8e6a8;
+    }
+    
+    /* Spinner */
+    .stSpinner > div {
+        border-color: #667eea transparent transparent transparent;
+    }
+    
+    /* Expander */
+    .streamlit-expanderHeader {
+        background-color: #1a1a1a;
+        color: #b0b0b0;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background-color: #252525;
+    }
+    
+    .streamlit-expanderContent {
+        background-color: #1a1a1a;
+        border: 1px solid #2d2d2d;
+        border-top: none;
+        color: #b0b0b0;
+    }
+    
+    /* Stats */
+    .stat-container {
+        background: #1a1a1a;
+        border: 1px solid #2d2d2d;
+        border-radius: 8px;
+        padding: 0.875rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .stat-number {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 1.5rem;
+        display: block;
+    }
+    
+    .stat-label {
+        color: #808080;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 0.25rem;
+    }
+    
+    /* Divider */
+    hr {
+        border: none;
+        border-top: 1px solid #2d2d2d;
+        margin: 1.5rem 0;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #171717;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #404040;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #505050;
+    }
+    
+    /* Text selection */
+    ::selection {
+        background-color: #667eea;
+        color: #ffffff;
+    }
+    
+    /* Links */
+    a {
+        color: #8b9cff;
+    }
+    
+    a:hover {
+        color: #a5b4ff;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-# --- CONFIGURE GOOGLE AI ---
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel('models/gemini-2.5-flash')
+# --- HEADER ---
+st.title("Document Search")
 
-# --- MAIN APP ---
-st.write("### Chat Interface")
+# --- SIDEBAR ---
+with st.sidebar:
+    st.markdown("### Settings")
+    
+    uploaded_files = st.file_uploader(
+        "Upload documents",
+        type=["pdf"],
+        accept_multiple_files=True,
+        help="Upload PDF files to search"
+    )
+    
+    # Stats
+    if "processed_files" in st.session_state:
+        st.markdown("---")
+        
+        file_count = len(st.session_state.processed_files)
+        chunk_count = len(st.session_state.chunks) if "chunks" in st.session_state else 0
+        
+        st.markdown(f"""
+        <div class="stat-container">
+            <span class="stat-number">{file_count}</span>
+            <div class="stat-label">Documents Indexed</div>
+        </div>
+        <div class="stat-container">
+            <span class="stat-number">{chunk_count}</span>
+            <div class="stat-label">Text Chunks</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        with st.expander("Indexed files"):
+            for i, filename in enumerate(st.session_state.processed_files, 1):
+                st.markdown(f"`{i}.` {filename}")
+    
+    st.markdown("---")
+    
+    if st.button("Clear conversation", use_container_width=True):
+        st.session_state.messages = []
+        st.rerun()
 
-# Initialize chat history
+# --- PROCESS DOCUMENTS ---
+process_now = False
+if uploaded_files:
+    current_files = [f.name for f in uploaded_files]
+    if "processed_files" not in st.session_state or st.session_state.processed_files != current_files:
+        process_now = True
+
+if process_now:
+    with st.spinner("Processing documents..."):
+        try:
+            index, embedder, chunks, file_count = backend.process_documents(uploaded_files)
+            
+            st.session_state.index = index
+            st.session_state.embedder = embedder
+            st.session_state.chunks = chunks
+            st.session_state.processed_files = current_files
+            
+            st.success(f"Successfully indexed {file_count} document{'s' if file_count != 1 else ''}")
+        except Exception as e:
+            st.error(f"Error processing documents: {str(e)}")
+
+# --- CHAT INTERFACE ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 1. Display chat history
+# Welcome message
+if not st.session_state.messages and "processed_files" in st.session_state:
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": "Hello! I've indexed your documents. Ask me anything about their content."
+    })
+
+# Display messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# 2. Chat Input 
-if user_input := st.chat_input("Ask a question about your PDF..."):
+# Chat input
+if prompt := st.chat_input("Ask about your documents..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
     
-    # Display user message
-    st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
-        st.markdown(user_input)
-
-    #  A SEARCH MEMORY (RAG) ---
-    context_text = ""
-    if "index" in st.session_state and "docs" in st.session_state and "embedder" in st.session_state:
-        st.write("Entering Rag searching mode ")
-        #convert user question to Vector
-        query_vector = st.session_state.embedder.encode([user_input])
-        
-        # Search the ind for  top 3 similar chunks
-        D, I = st.session_state.index.search(query_vector, k=3)
-        
-        #taking the text ofchunks
-        retrieved_chunks = [st.session_state.docs[i] for i in I[0]] 
-        
-        #chuck in string 
-        context_text = "\n\n".join(retrieved_chunks)
-        
-        # what we found 
-        with st.expander(" Source Material"):
-            st.write(context_text)
-    else:
-        st.warning("Please upload a PDF first to enable RAG search.")
-
-    #  B-genarating ans -
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        
-        try:
-            # promt here 
-            if context_text:
-                prompt = f"""
-                You are a helpful assistant. 
-                Answer the user's question using ONLY the context provided below.
-                If the answer is not in the context, say "I don't know based on the document."
-                
-                CONTEXT:
-                {context_text}
-                
-                QUESTION:
-                {user_input}
-                
-                ANSWER:
-                """
-            else:
-                prompt = user_input # Just chat normally if no PDF
-
-            response = model.generate_content(prompt)
-            ai_reply = response.text
-            message_placeholder.markdown(ai_reply)
-            
-        except Exception as e:
-            ai_reply = f"Error: {str(e)}"
-            message_placeholder.markdown(ai_reply)
-
-    # 4. Save assistant message
-    st.session_state.messages.append({"role": "assistant", "content": ai_reply})
-
-# ---pdf prossesing section ---
-st.markdown("---")
-st.subheader(" Doc Loader")
-uploaded_file = st.file_uploader("Upload a PDF to process", type=["pdf"])
-
-if uploaded_file is not None:
-    # -Checking if we already processed this exact file ---
-    current_file_name = uploaded_file.name
+        st.markdown(prompt)
     
-    # Check if we processed a file AND if it's the same filename
-    if "processed_file_name" not in st.session_state or st.session_state.processed_file_name != current_file_name:
-        
-        # Only run this if it's a new file
-        st.write(f"Processing {current_file_name} for the first time...")
-        
-        reader = PdfReader(uploaded_file)
-        full_text = ""
-        for i, page in enumerate(reader.pages):
-            text = page.extract_text()
-            if text:
-                full_text += text + "\n"
-        
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        chunks = text_splitter.split_text(full_text)
-        
-        st.session_state.docs = chunks
-        
-        with st.spinner("Creating Memory (Embeddings)..."):
-            embedder = SentenceTransformer('all-MiniLM-L6-v2')
-            vectors = embedder.encode(chunks)
-            dimension = vectors.shape[1]
-            index = faiss.IndexFlatL2(dimension)
-            index.add(vectors)
+    with st.chat_message("assistant"):
+        try:
+            if "index" in st.session_state:
+                with st.spinner("Searching..."):
+                    context = backend.search_index(
+                        prompt,
+                        st.session_state.index,
+                        st.session_state.embedder,
+                        st.session_state.chunks
+                    )
+                    answer = backend.generate_answer(prompt, context)
+            else:
+                answer = "Please upload PDF documents to get started."
             
-            st.session_state.index = index
-            st.session_state.embedder = embedder
+            st.markdown(answer)
+        except Exception as e:
+            answer = f"An error occurred: {str(e)}"
+            st.markdown(answer)
+    
+    st.session_state.messages.append({"role": "assistant", "content": answer})
 
-        # we processed this file
-        st.session_state.processed_file_name = current_file_name
-
-        st.success("Document Indexed Successfully!")
-        st.info(f"Created {len(chunks)} vectors.")
-    else:
-        st.info(f" done '{current_file_name}' is already loaded. No re-indexing needed.")
-
+# Empty state
+if not uploaded_files:
+    st.info("Upload documents to begin searching")
