@@ -21,7 +21,7 @@ st.markdown("""
     
     /* Dark Theme with Glowing Ambient Background */
     .stApp {
-        background-color: #0B0F17;
+        background-color: #121212;
         background-image: 
             radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
             radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.09) 0%, transparent 45%);
@@ -258,8 +258,8 @@ st.markdown("""
 # --- AI BRANDING HEADER ---
 st.markdown("""
 <div class="ai-badge">✦ AI Multimodal RAG Engine</div>
-<h1 class="main-header-title">Nexus Multimodal Search</h1>
-<div class="main-header-sub">Hybrid BM25 + FAISS Cosine RAG Search across PDFs, Spreadsheets, Voice Notes, Images & Web URLs</div>
+<h1 class="main-header-title">Multimodal Search</h1>
+<div class="main-header-sub"> Search across PDFs, Spreadsheets, Voice Notes, Images & Web URLs</div>
 """, unsafe_allow_html=True)
 
 # --- SIDEBAR ---
