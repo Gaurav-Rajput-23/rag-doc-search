@@ -4,7 +4,7 @@ import backend as backend
 
 # --- PAGE CONFIG ---
 st.set_page_config(
-    page_title="Nexus Multimodal AI RAG",
+    page_title="Multimodal AI RAG",
     page_icon="✦",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -237,8 +237,8 @@ st.markdown("""
 # --- AI BRANDING HEADER ---
 st.markdown("""
 <div class="ai-badge">✦ AI Multimodal RAG Engine</div>
-<h1 class="main-header-title">Nexus Multimodal Search</h1>
-<div class="main-header-sub">Hybrid BM25 + FAISS Cosine RAG Search across PDFs, Spreadsheets, Voice Notes, Images & Web URLs</div>
+<h1 class="main-header-title"> Multimodal Search</h1>
+<div class="main-header-sub"> Search across PDFs, Spreadsheets, Voice Notes, Images & Web URLs</div>
 """, unsafe_allow_html=True)
 
 # --- SIDEBAR ---
