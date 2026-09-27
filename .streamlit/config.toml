@@ -2,3 +2,11 @@
 fileWatcherType = "none"
 headless = true
 enableCORS = false
+
+[theme]
+base = "dark"
+primaryColor = "#818CF8"
+backgroundColor = "#0B0F17"
+secondaryBackgroundColor = "#131C2E"
+textColor = "#F3F4F6"
+font = "sans serif"

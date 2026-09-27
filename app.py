@@ -10,7 +10,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- FUTURISTIC AI GLASSMORPHISM THEME ---
+# --- FUTURISTIC AI GLASSMORPHISM THEME (LIGHT & DARK BROWSER PROOF) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -19,13 +19,13 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     
-    /* Dark Theme with Glowing Ambient Background */
-    .stApp {
-        background-color: #121212;
+    /* Force App Background Regardless of Browser Theme */
+    .stApp, [data-testid="stAppViewContainer"] {
+        background-color: #0B0F17 !important;
         background-image: 
-            radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-            radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.09) 0%, transparent 45%);
-        color: #F3F4F6;
+            radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
+            radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.12) 0%, transparent 45%) !important;
+        color: #F3F4F6 !important;
     }
     
     .main .block-container {
@@ -33,7 +33,6 @@ st.markdown("""
         max-width: 900px;
     }
     
-    /* Hide MainMenu & Footer, but Keep Transparent Header & Sidebar Toggle Button Visible */
     #MainMenu, footer {visibility: hidden;}
     
     [data-testid="stHeader"] {
@@ -44,19 +43,12 @@ st.markdown("""
     [data-testid="stSidebarCollapseButton"],
     button[kind="header"] {
         color: #818CF8 !important;
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
         border-radius: 8px !important;
         backdrop-filter: blur(10px) !important;
         visibility: visible !important;
         z-index: 999999 !important;
-    }
-    
-    [data-testid="collapsedControl"]:hover,
-    [data-testid="stSidebarCollapseButton"]:hover {
-        background: rgba(99, 102, 241, 0.25) !important;
-        border-color: rgba(168, 85, 247, 0.6) !important;
-        color: #FFFFFF !important;
     }
     
     /* AI Badge & Header Styling */
@@ -64,14 +56,14 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
-        border: 1px solid rgba(168, 85, 247, 0.4);
-        box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%);
+        border: 1px solid rgba(168, 85, 247, 0.5);
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
         padding: 5px 14px;
         border-radius: 20px;
         font-size: 0.72rem;
         font-weight: 700;
-        color: #C084FC;
+        color: #D8B4FE !important;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         margin-bottom: 0.75rem;
@@ -88,7 +80,7 @@ st.markdown("""
     }
     
     .main-header-sub {
-        color: #9CA3AF;
+        color: #9CA3AF !important;
         font-size: 0.95rem;
         font-weight: 400;
         margin-bottom: 1.75rem;
@@ -96,51 +88,65 @@ st.markdown("""
     
     /* Glassmorphism Sidebar */
     [data-testid="stSidebar"] {
-        background-color: rgba(13, 18, 28, 0.85) !important;
-        backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        background-color: #0E131F !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    [data-testid="stSidebar"] h3, [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
+        color: #E5E7EB !important;
     }
     
     [data-testid="stSidebar"] h3 {
-        font-size: 0.75rem;
+        font-size: 0.78rem;
         font-weight: 700;
-        color: #818CF8;
+        color: #818CF8 !important;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 0.75rem;
     }
     
-    /* Glass File Uploader */
-    [data-testid="stFileUploader"] {
-        border: 1px dashed rgba(99, 102, 241, 0.4);
-        border-radius: 14px;
-        padding: 1.25rem;
-        background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(10px);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* High Contrast Inputs & Text Areas (Light Mode Proof) */
+    input, textarea, [data-testid="stChatInput"] textarea, .stChatInputContainer textarea {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        background-color: #161D2F !important;
+        border: 1px solid rgba(129, 140, 248, 0.4) !important;
+        border-radius: 12px !important;
+        font-size: 0.95rem !important;
+        opacity: 1 !important;
     }
     
-    [data-testid="stFileUploader"]:hover {
-        border-color: rgba(168, 85, 247, 0.7);
-        background: rgba(99, 102, 241, 0.05);
-        box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+    input:focus, textarea:focus, [data-testid="stChatInput"] textarea:focus {
+        border-color: #A855F7 !important;
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.35) !important;
+        background-color: #1C253B !important;
+    }
+    
+    ::placeholder, textarea::placeholder, input::placeholder {
+        color: #9CA3AF !important;
+        -webkit-text-fill-color: #9CA3AF !important;
+        opacity: 1 !important;
+    }
+    
+    /* File Uploader Container */
+    [data-testid="stFileUploader"] {
+        border: 1.5px dashed #4F46E5 !important;
+        border-radius: 14px !important;
+        padding: 1.25rem !important;
+        background: #141A29 !important;
+    }
+    
+    [data-testid="stFileUploader"] label {
+        color: #F3F4F6 !important;
     }
     
     /* Glass Stat Cards */
     .stat-container {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        backdrop-filter: blur(12px);
+        background: #141A29 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         border-radius: 12px;
         padding: 1rem;
         margin-bottom: 0.75rem;
-        transition: all 0.25s;
-    }
-    
-    .stat-container:hover {
-        border-color: rgba(129, 140, 248, 0.4);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
     
     .stat-number {
@@ -153,7 +159,7 @@ st.markdown("""
     }
     
     .stat-label {
-        color: #9CA3AF;
+        color: #9CA3AF !important;
         font-size: 0.72rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -166,91 +172,64 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(99, 102, 241, 0.12);
-        border: 1px solid rgba(129, 140, 248, 0.35);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        background: rgba(99, 102, 241, 0.2) !important;
+        border: 1px solid rgba(129, 140, 248, 0.4) !important;
         border-radius: 8px;
         padding: 0.3rem 0.75rem;
         font-size: 0.78rem;
-        font-weight: 500;
-        color: #C7D2FE;
+        font-weight: 600;
+        color: #E0E7FF !important;
         margin-right: 0.45rem;
         margin-top: 0.45rem;
-        transition: all 0.2s;
-    }
-    
-    .citation-badge:hover {
-        background: rgba(168, 85, 247, 0.25);
-        border-color: rgba(168, 85, 247, 0.6);
-        color: #FFFFFF;
-        transform: translateY(-1px);
     }
     
     /* Modern Glass Buttons */
     .stButton > button {
-        background: rgba(255, 255, 255, 0.04);
-        color: #E5E7EB;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 10px;
-        padding: 0.6rem 1.2rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #1E293B !important;
+        color: #F8FAFC !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 10px !important;
+        padding: 0.6rem 1.2rem !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
     }
     
     .stButton > button:hover {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%);
-        border-color: rgba(168, 85, 247, 0.5);
-        color: #FFFFFF;
-        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+        background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
+        border-color: #A855F7 !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35) !important;
     }
     
     /* Chat Messages */
     .stChatMessage {
-        background: transparent;
+        background: transparent !important;
         padding: 1.5rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
     }
     
     .stChatMessage[data-testid*="assistant"] {
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 16px;
-        padding: 1.25rem 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        margin-bottom: 1rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        background: #131A29 !important;
+        border-radius: 16px !important;
+        padding: 1.25rem 1.5rem !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    [data-testid="stChatMessageContent"] {
+        color: #F3F4F6 !important;
+    }
+    
+    [data-testid="stChatMessageContent"] p {
+        color: #F3F4F6 !important;
     }
     
     [data-testid="chatAvatarIcon-user"] {
-        background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+        background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
     }
     
     [data-testid="chatAvatarIcon-assistant"] {
-        background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
-    }
-    
-    /* Glowing Inputs */
-    .stChatInputContainer {
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        padding-top: 1.25rem;
-        background: #0B0F17;
-    }
-    
-    .stChatInputContainer textarea {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 14px;
-        color: #F3F4F6;
-        font-size: 0.95rem;
-        padding: 0.875rem 1.25rem;
-        transition: all 0.25s;
-    }
-    
-    .stChatInputContainer textarea:focus {
-        border-color: #818CF8;
-        box-shadow: 0 0 22px rgba(99, 102, 241, 0.35);
-        background: rgba(255, 255, 255, 0.05);
+        background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -258,8 +237,8 @@ st.markdown("""
 # --- AI BRANDING HEADER ---
 st.markdown("""
 <div class="ai-badge">✦ AI Multimodal RAG Engine</div>
-<h1 class="main-header-title">Multimodal Search</h1>
-<div class="main-header-sub"> Search across PDFs, Spreadsheets, Voice Notes, Images & Web URLs</div>
+<h1 class="main-header-title">Nexus Multimodal Search</h1>
+<div class="main-header-sub">Hybrid BM25 + FAISS Cosine RAG Search across PDFs, Spreadsheets, Voice Notes, Images & Web URLs</div>
 """, unsafe_allow_html=True)
 
 # --- SIDEBAR ---
