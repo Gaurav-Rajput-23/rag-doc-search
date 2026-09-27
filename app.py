@@ -355,7 +355,7 @@ if "messages" not in st.session_state:
 if not st.session_state.messages and ("processed_files" in st.session_state or "extra_chunks" in st.session_state):
     st.session_state.messages.append({
         "role": "assistant",
-        "content": "Hello! I've indexed your sources using **Hybrid BM25 + FAISS Search**. Ask me anything across your PDFs, Spreadsheets, Voice Notes, Images, or Web URLs!",
+        "content": "Hello! I've indexed your sources. Ask me anything across Files!",
         "citations": []
     })
 
